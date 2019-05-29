@@ -40,6 +40,25 @@
 // - https://github.com/bogde/HX711/issues/75
 // - https://github.com/arduino/Arduino/issues/6561
 // - https://community.hiveeyes.org/t/using-bogdans-canonical-hx711-library-on-the-esp32/539
+/*
+uint8_t shiftInSlow(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
+    uint8_t value = 0;
+    uint8_t i;
+
+    for(i = 0; i < 8; ++i) {
+        digitalWrite(clockPin, HIGH);
+        delayMicroseconds(1);
+        
+        digitalWrite(clockPin, LOW);
+        delayMicroseconds(1);
+        if(bitOrder == LSBFIRST)
+            value |= digitalRead(dataPin) << i;
+        else
+            value |= digitalRead(dataPin) << (7 - i);
+    }
+    return value;
+}
+*/
 uint8_t shiftInSlow(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
     uint8_t value = 0;
     uint8_t i;
@@ -56,6 +75,8 @@ uint8_t shiftInSlow(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
     }
     return value;
 }
+
+
 #define SHIFTIN_WITH_SPEED_SUPPORT(data,clock,order) shiftInSlow(data,clock,order)
 #else
 #define SHIFTIN_WITH_SPEED_SUPPORT(data,clock,order) shiftIn(data,clock,order)
@@ -73,7 +94,7 @@ void HX711::begin(byte dout, byte pd_sck, byte gain) {
 	DOUT = dout;
 
 	pinMode(PD_SCK, OUTPUT);
-	pinMode(DOUT, INPUT);
+	pinMode(DOUT, INPUT_PULLUP);
 
 	set_gain(gain);
 }
@@ -95,8 +116,11 @@ void HX711::set_gain(byte gain) {
 			break;
 	}
 
-	digitalWrite(PD_SCK, LOW);
-	read();
+	//digitalWrite(PD_SCK, LOW);
+	if(is_ready())
+	    read();
+	
+	
 }
 
 long HX711::read() {
@@ -140,10 +164,14 @@ long HX711::read() {
 	#endif
 
 	// Pulse the clock pin 24 times to read the data.
+    data[2] = shiftIn(DOUT, PD_SCK, MSBFIRST);
+    data[1] = shiftIn(DOUT, PD_SCK, MSBFIRST);
+    data[0] = shiftIn(DOUT, PD_SCK, MSBFIRST);
+    /*
 	data[2] = SHIFTIN_WITH_SPEED_SUPPORT(DOUT, PD_SCK, MSBFIRST);
 	data[1] = SHIFTIN_WITH_SPEED_SUPPORT(DOUT, PD_SCK, MSBFIRST);
 	data[0] = SHIFTIN_WITH_SPEED_SUPPORT(DOUT, PD_SCK, MSBFIRST);
-
+    */
 	// Set the channel and the gain factor for the next reading using the clock pin.
 	for (unsigned int i = 0; i < GAIN; i++) {
 		digitalWrite(PD_SCK, HIGH);
