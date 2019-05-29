@@ -11,14 +11,14 @@
 
 
 // HX711 circuit wiring
-const int LOADCELL_DOUT_PIN = 2;
-const int LOADCELL_SCK_PIN = 3;
+const int LOADCELL_DOUT_PIN = 3;
+const int LOADCELL_SCK_PIN = 2;
 
 
 HX711 scale;
 
 void setup() {
-  Serial.begin(38400);
+  Serial.begin(115200);
   Serial.println("HX711 Demo");
 
   Serial.println("Initializing the scale");
@@ -45,7 +45,13 @@ void setup() {
   Serial.println(scale.get_units(5), 1);	// print the average of 5 readings from the ADC minus tare weight (not set) divided
 						// by the SCALE parameter (not set yet)
 
-  scale.set_scale(2280.f);                      // this value is obtained by calibrating the scale with known weights; see the README for details
+
+  // this value is obtained by calibrating the scale with known weights; see the README:<<How to calibrate your load cell>> for details
+  // It depends on the scale of the load-cell.
+  // You should change this value to fit your load-cell and the sensor actually you used.
+  scale.set_scale(2280.f);       
+
+
   scale.tare();				        // reset the scale to 0
 
   Serial.println("After setting up the scale:");

@@ -20,8 +20,8 @@ hardware becoming available before returning a reading.
 HX711 loadcell;
 
 // 1. HX711 circuit wiring
-const int LOADCELL_DOUT_PIN = 2;
-const int LOADCELL_SCK_PIN = 3;
+const int LOADCELL_DOUT_PIN = 3;
+const int LOADCELL_SCK_PIN = 2;
 
 // 2. Adjustment settings
 const long LOADCELL_OFFSET = 50682624;
